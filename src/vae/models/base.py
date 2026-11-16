@@ -13,6 +13,13 @@ class BaseAutoencoder(nn.Module, ABC):
         self.encoder = ConvEncoder(in_channels=in_channels, hidden_channels=hidden_channels)
         self.decoder = ConvDecoder(out_channels=in_channels, hidden_channels=hidden_channels)
         
+        n_layers = len(hidden_channels)
+        if image_size % 2**n_layers != 0:
+            raise ValueError(
+                f"image_size ({image_size}) must be divisible by 2**{n_layers} "
+                f"for {n_layers} encoder layers"
+            )
+        
         size = image_size // 2 ** len(hidden_channels)   # each layer halves H and W
         self.feat_shape = (self.encoder.out_channels, size, size)   # (64, 7, 7)
         self.feat_dim = math.prod(self.feat_shape)
