@@ -8,6 +8,8 @@ plots/
 __pycache__/
 *.py[cod]
 *.egg-info/
+build/
+dist/
 
 # Tools
 .pytest_cache/
