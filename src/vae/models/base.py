@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 from collections.abc import Sequence
@@ -14,6 +15,8 @@ class BaseAutoencoder(nn.Module, ABC):
         
         size = image_size // 2 ** len(hidden_channels)   # each layer halves H and W
         self.feat_shape = (self.encoder.out_channels, size, size)   # (64, 7, 7)
+        self.feat_dim = math.prod(self.feat_shape)
+
 
     @abstractmethod
     def encode(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, ...]:
