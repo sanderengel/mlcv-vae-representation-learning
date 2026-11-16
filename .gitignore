@@ -1,0 +1,23 @@
+data/
+plots/
+
+# Environment
+.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Tools
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS / local
+.DS_Store
+
+# Dev
+scratch.*
+
+# Editors
+.vscode/
