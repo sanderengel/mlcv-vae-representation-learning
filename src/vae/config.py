@@ -1,0 +1,1 @@
+HIDDEN_CHANNELS = (64, 32)
