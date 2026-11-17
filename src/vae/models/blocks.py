@@ -8,7 +8,7 @@ class ResidualBlock(nn.Module):
     def __init__(self, channels: int):
         super().__init__()
         # Two convolutions with ReLU between them so the residual branch is nonlinear
-        self.block == nn.Sequential(
+        self.block = nn.Sequential(
             nn.Conv2d(channels, channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(channels),
             nn.ReLU(inplace=True),
