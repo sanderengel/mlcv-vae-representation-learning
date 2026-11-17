@@ -8,10 +8,16 @@ from vae.models.blocks import ConvEncoder, ConvDecoder
 
 
 class BaseAutoencoder(nn.Module, ABC):
-    def __init__(self, in_channels: int = 1, hidden_channels: Sequence[int] = (32, 64), image_size: int = 28):
+    def __init__(
+            self,
+            in_channels: int = 1,
+            hidden_channels: Sequence[int] = (32, 64),
+            num_res_blocks: int = 0,
+            image_size: int = 28
+        ):
         super().__init__()
-        self.encoder = ConvEncoder(in_channels=in_channels, hidden_channels=hidden_channels)
-        self.decoder = ConvDecoder(out_channels=in_channels, hidden_channels=hidden_channels)
+        self.encoder = ConvEncoder(in_channels=in_channels, hidden_channels=hidden_channels, num_res_blocks=num_res_blocks)
+        self.decoder = ConvDecoder(out_channels=in_channels, hidden_channels=hidden_channels, num_res_blocks=num_res_blocks)
         
         n_layers = len(hidden_channels)
         if image_size % 2**n_layers != 0:
