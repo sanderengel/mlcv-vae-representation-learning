@@ -1,13 +1,14 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from collections.abc import Sequence
 
 from vae.models.base import BaseAutoencoder
+from vae.loss import recon_loss, mse_loss
 
 
 class VectorQuantizer(nn.Module):
     def __init__(self, num_embeddings: int = 512, embedding_dim: int = 64):
+        super().__init__()
         self.codebook = nn.Embedding(num_embeddings, embedding_dim)
         self.codebook.weight.data.uniform_(-1 / num_embeddings, 1 / num_embeddings)
 
@@ -27,15 +28,16 @@ class VectorQuantizer(nn.Module):
         # Nearest code per position
         indices = dist.argmin(1) # (B*H*W,)
         z_q = self.codebook(indices).view(B, H, W, D).permute(0, 3, 1, 2) # Back to (B, D, H, W)
+        indices = indices.view(B, H, W)
 
         # VQ losses (sum over elements, mean over batches)
-        codebook_loss = F.mse_loss(z_q, z_e.detach(), reduction="sum") / B
-        commitment_loss = F.mse_loss(z_e, z_q.detach(), reduction="sum") / B
+        codebook_loss = mse_loss(z_q, z_e.detach())
+        commitment_loss = mse_loss(z_e, z_q.detach())
 
         # Straight-through estimator (forward uses z_q, backward copies gradients to z_e)
         z_q = z_e + (z_q - z_e).detach()
 
-        return z_q, indices.view(B, H, W), codebook_loss, commitment_loss
+        return z_q, indices, codebook_loss, commitment_loss
 
 
 class VQVAE(BaseAutoencoder):
@@ -56,3 +58,34 @@ class VQVAE(BaseAutoencoder):
         self.quantizer = VectorQuantizer(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.post_quant = nn.Conv2d(embedding_dim, feat_channels, kernel_size=1)
 
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        h = self.encoder(x)
+        z_e = self.pre_quant(h)
+        return z_e
+
+    def decode(self, z_q: torch.Tensor) -> torch.Tensor:
+        h = self.post_quant(z_q)
+        x_logits = self.decoder(h)
+        return x_logits
+
+    def forward(self, x: torch.Tensor) -> dict:
+        z_e = self.encode(x)
+        z_q, indices, codebook_loss, commitment_loss = self.quantizer(z_e)
+        x_logits = self.decode(z_q)
+        return {
+            "x_logits": x_logits,
+            "z_q": z_q,
+            "indices": indices,
+            "codebook_loss": codebook_loss,
+            "commitment_loss": commitment_loss
+        }
+
+    def loss(self, x: torch.Tensor, out: dict) -> dict:
+        recon = recon_loss(x, out["x_logits"])
+        loss = recon + out["codebook_loss"] + self.commitment_cost * out["commitment_loss"]
+        return {
+            "loss": loss,
+            "recon": recon,
+            "codebook": out["codebook_loss"],
+            "commitment": out["commitment_loss"]
+        }
