@@ -41,16 +41,8 @@ class VectorQuantizer(nn.Module):
 
 
 class VQVAE(BaseAutoencoder):
-    def __init__(
-        self,
-        in_channels: int = 1,
-        hidden_channels: Sequence[int] = (32, 64),
-        image_size: int = 28,
-        num_embeddings: int = 512,
-        embedding_dim: int = 64,
-        commitment_cost: float = 0.25,
-    ):
-        super().__init__(in_channels=in_channels, hidden_channels=hidden_channels, image_size=image_size)
+    def __init__(self, num_embeddings: int = 512, embedding_dim: int = 64, commitment_cost: float = 0.25, **kwargs):
+        super().__init__(**kwargs)
         self.commitment_cost = commitment_cost
         feat_channels = self.feat_shape[0]
 

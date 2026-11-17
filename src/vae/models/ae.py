@@ -7,14 +7,8 @@ from vae.loss import recon_loss
 
 
 class AE(BaseAutoencoder):
-    def __init__(
-        self,
-        in_channels: int = 1,
-        hidden_channels: Sequence[int] = (32, 64),
-        image_size: int = 28,
-        latent_dim: int = 16
-    ):
-        super().__init__(in_channels=in_channels, hidden_channels=hidden_channels, image_size=image_size)
+    def __init__(self, latent_dim: int = 16, **kwargs):
+        super().__init__(**kwargs)
         self.fc_enc = nn.Linear(self.feat_dim, latent_dim)
         self.fc_dec = nn.Linear(latent_dim, self.feat_dim)
 

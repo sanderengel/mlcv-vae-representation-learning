@@ -7,15 +7,8 @@ from vae.loss import recon_loss, kl_divergence
 
 
 class VAE(BaseAutoencoder):
-    def __init__(
-        self,
-        in_channels: int = 1,
-        hidden_channels: Sequence[int] = (32, 64),
-        image_size: int = 28,
-        latent_dim: int = 16,
-        beta: float = 1.0
-    ):
-        super().__init__(in_channels=in_channels, hidden_channels=hidden_channels, image_size=image_size)
+    def __init__(self, latent_dim: int = 16, beta: float = 1.0, **kwargs):
+        super().__init__(**kwargs)
         self.beta = beta
         self.fc_mu = nn.Linear(self.feat_dim, latent_dim)
         self.fc_logvar = nn.Linear(self.feat_dim, latent_dim)
