@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from collections.abc import Sequence
 
 from vae.models.base import BaseAutoencoder
