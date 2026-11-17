@@ -39,3 +39,10 @@ def test_gradients_reach_encoder(model_cls, x):
     model.loss(x, out)["loss"].backward()
     grad = model.encoder.net[0].weight.grad
     assert grad is not None and grad.abs().sum() > 0
+
+
+@pytest.mark.parametrize("model_cls", MODELS)
+def test_bigger_backbone(model_cls, x):
+    model = model_cls(hidden_channels=(64, 128), num_res_blocks=1)
+    out = model(x)
+    assert out["x_logits"].shape == x.shape
