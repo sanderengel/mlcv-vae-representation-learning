@@ -46,3 +46,8 @@ def test_bigger_backbone(model_cls, x):
     model = model_cls(hidden_channels=(64, 128), num_res_blocks=1)
     out = model(x)
     assert out["x_logits"].shape == x.shape
+
+
+def test_invalid_image_size_raises():
+    with pytest.raises(ValueError):
+        AE(image_size=30)
