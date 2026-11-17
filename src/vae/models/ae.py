@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from collections.abc import Sequence
 
 from vae.models.base import BaseAutoencoder
 from vae.loss import recon_loss
