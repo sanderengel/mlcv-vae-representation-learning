@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from collections.abc import Sequence
 
 from vae.models.base import BaseAutoencoder
+from vae.loss import recon_loss
 
 
 class AE(BaseAutoencoder):
@@ -34,6 +35,5 @@ class AE(BaseAutoencoder):
         return {"x_logits": x_logits, "z": z}
 
     def loss(self, x: torch.Tensor, out: dict) -> dict:
-        B = x.size(0)
-        recon = F.binary_cross_entropy_with_logits(out["x_logits"], x, reductions="sum") / B
+        recon = recon_loss(x, out["x_logits"])
         return {"loss": recon, "recon": recon}
