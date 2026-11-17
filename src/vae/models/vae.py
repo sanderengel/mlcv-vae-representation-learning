@@ -32,17 +32,17 @@ class VAE(BaseAutoencoder):
         x_logits = self.decoder(h)
         return x_logits
 
-    def forward(self, x: torch.Tensor) -> dict:
-        mu, logvar = self.encode(x)
-        z = self.reparameterize(mu, logvar)
-        x_logits = self.decode(z)
-        return {"x_logits": x_logits, "z": z, "mu": mu, "logvar": logvar}
-
-    def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
+    def _reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         z = mu + std * eps
         return z
+
+    def forward(self, x: torch.Tensor) -> dict:
+        mu, logvar = self.encode(x)
+        z = self._reparameterize(mu, logvar)
+        x_logits = self.decode(z)
+        return {"x_logits": x_logits, "z": z, "mu": mu, "logvar": logvar}
 
     def loss(self, x: torch.Tensor, out: dict) -> dict:
         B = x.size(0)
