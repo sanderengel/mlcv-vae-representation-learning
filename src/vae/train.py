@@ -57,10 +57,6 @@ def fit(
     if verbose:
         print(f"Training model {type(model).__name__} with lr={lr} over {n_epochs} epochs...")
 
-    run_dir.mkdir(parents=True, exist_ok=False) # Raises error if already ran
-    if verbose:
-        print(f"Created directory '{run_dir}'")
-
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     device = get_device(verbose=verbose)

@@ -31,6 +31,8 @@ def run_experiment(
 
     run_dir = Path(runs_dir) / run_name
     run_dir.mkdir(parents=True, exist_ok=False) # Raise error if ran before
+    if verbose:
+        print(f"Created directory '{run_dir}'")
 
     set_seed(seed)
     train_loader, val_loader, _, info = get_dataloaders(dataset, batch_size=batch_size, seed=seed)
