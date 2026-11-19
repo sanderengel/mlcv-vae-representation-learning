@@ -31,7 +31,15 @@ def run_experiment(
         raise ValueError(f"Unknown model '{model_name}'. Supported models are {list(MODELS)}")
 
     run_dir = Path(runs_dir) / run_name
-    run_dir.mkdir(parents=True, exist_ok=overwrite) # If not set to overwrite, raise error if ran before
+    if run_dir.exists() and not overwrite:
+        if verbose:
+            print(f"Skipping '{run_name}': loading existing run from '{run_dir}'.")
+        _, _, history = load_run(run_dir)
+        val_loss = history["val"]["loss"]
+        best_epoch = val_loss.index(min(val_loss)) + 1  # Epochs are 1-indexed
+        return history, best_epoch
+
+    run_dir.mkdir(parents=True, exist_ok=True)
     if verbose:
         print(f"Created directory '{run_dir}'")
 
