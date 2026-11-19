@@ -56,7 +56,7 @@ class ConvDecoder(nn.Module):
         for i, (c_in, c_out) in enumerate(zip(chs[:-1], chs[1:])):
             layers += [ResidualBlock(c_in) for _ in range(num_res_blocks)]
             layers.append(nn.ConvTranspose2d(c_in, c_out, kernel_size=4, stride=2, padding=1))  # Doubles H and W
-            if i != len(chs) - 1: # No BatchNorm or ReLU on the output layer
+            if i != len(chs) - 2: # No BatchNorm or ReLU on the output layer
                 layers += [nn.BatchNorm2d(c_out), nn.ReLU(inplace=True)]
 
         self.net = nn.Sequential(*layers)
