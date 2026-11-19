@@ -67,34 +67,47 @@ def fit(
     best_val_loss = float("inf")
     best_epoch = 0
 
-    for epoch in range(1, n_epochs + 1):
-        train_losses = run_epoch(model, train_loader, device, optimizer)
-        val_losses = run_epoch(model, val_loader, device) # No optimizer for evaluation
+    try:
+        for epoch in range(1, n_epochs + 1):
+            train_losses = run_epoch(model, train_loader, device, optimizer)
+            val_losses = run_epoch(model, val_loader, device) # No optimizer for evaluation
 
-        for mode, losses in zip(modes, (train_losses, val_losses)):
-            for component, loss in losses.items():
-                history[mode][component].append(loss)
+            for mode, losses in zip(modes, (train_losses, val_losses)):
+                for component, loss in losses.items():
+                    history[mode][component].append(loss)
 
+            if verbose:
+                progress_str = f"Epoch: {epoch}/{n_epochs}, train loss: {train_losses['loss']:.4f}, val loss: {val_losses['loss']:.4f}"
+                if "kl" in train_losses and "kl" in val_losses:
+                    progress_str += f", train kl: {train_losses['kl']:.4f}, val kl: {val_losses['kl']:.4f}"
+                print(progress_str)
+
+            if val_losses["loss"] < best_val_loss:
+                best_val_loss = val_losses["loss"]
+                best_epoch = epoch
+
+                # Checkpoint
+                torch.save(
+                    {"model": model.state_dict(), "epoch": epoch, "val_loss": best_val_loss},
+                    run_dir / "model.pt"
+                )
+    
+    except KeyboardInterrupt:
         if verbose:
-            progress_str = f"Epoch: {epoch}/{n_epochs}, train loss: {train_losses['loss']:.4f}, val loss: {val_losses['loss']:.4f}"
-            if "kl" in train_losses and "kl" in val_losses:
-                progress_str += f", train kl: {train_losses['kl']:.4f}, val kl: {val_losses['kl']:.4f}"
-            print(progress_str)
+            print("Training interrupted.")
+    except Exception:
+        if verbose:
+            print("Training failed.")
+            raise
+    else:
+        if verbose:
+            print("Finished training.")
 
-        if val_losses["loss"] < best_val_loss:
-            best_val_loss = val_losses["loss"]
-            best_epoch = epoch
-
-            # Checkpoint
-            torch.save(
-                {"model": model.state_dict(), "epoch": epoch, "val_loss": best_val_loss},
-                run_dir / "model.pt"
-            )
-
-    if verbose:
-        print("Finished training.")
-
-    with open(run_dir / "history.json", "w") as f:
-        json.dump(history, f, indent=2)
+    finally:
+        history_path = run_dir / "history.json"
+        with open(history_path, "w") as f:
+            json.dump(history, f, indent=2)
+            if verbose:
+                print(f"Saved training history to '{history_path}'")
 
     return history, best_epoch
