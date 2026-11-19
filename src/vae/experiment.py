@@ -55,7 +55,7 @@ def run_experiment(
     with open(run_dir / "config.json", "w") as f:
         json.dump(run_config, f, indent=2)
 
-    model = MODELS[model_name](model_kwargs)
+    model = MODELS[model_name](**model_kwargs)
     return fit(model, train_loader, val_loader, run_dir=run_dir, lr=lr, n_epochs=n_epochs, verbose=verbose)
 
 
