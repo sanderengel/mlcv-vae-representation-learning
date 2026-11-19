@@ -76,9 +76,9 @@ def fit(
                 history[mode][component].append(loss)
 
         if verbose:
-            progress_str = f"Epoch: {epoch}/{n_epochs}, train loss: {train_losses['loss']}, val loss: {val_losses['loss']}"
+            progress_str = f"Epoch: {epoch}/{n_epochs}, train loss: {train_losses['loss']:.4f}, val loss: {val_losses['loss']:.4f}"
             if "kl" in train_losses and "kl" in val_losses:
-                progress_str += f", train kl: {train_losses['kl']}, val kl: {val_losses['kl']}"
+                progress_str += f", train kl: {train_losses['kl']:.4f}, val kl: {val_losses['kl']:.4f}"
             print(progress_str)
 
         if val_losses["loss"] < best_val_loss:
