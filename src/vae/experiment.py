@@ -22,6 +22,7 @@ def run_experiment(
     batch_size: int = config.BATCH_SIZE,
     lr: float = config.LR,
     n_epochs: int = config.N_EPOCHS,
+    overwrite: bool = False,
     verbose: bool = True,
     **model_kwargs
 ) -> tuple[dict, int]:
@@ -30,7 +31,7 @@ def run_experiment(
         raise ValueError(f"Unknown model '{model_name}'. Supported models are {list(MODELS)}")
 
     run_dir = Path(runs_dir) / run_name
-    run_dir.mkdir(parents=True, exist_ok=False) # Raise error if ran before
+    run_dir.mkdir(parents=True, exist_ok=overwrite) # If not set to overwrite, raise error if ran before
     if verbose:
         print(f"Created directory '{run_dir}'")
 
