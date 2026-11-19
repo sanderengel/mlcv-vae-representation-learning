@@ -68,6 +68,12 @@ class VQVAE(BaseAutoencoder):
         x_logits = self.decoder(h)
         return x_logits
 
+    def reconstruct(self, x: torch.Tensor) -> torch.Tensor:
+        z_e = self.encode(x)
+        z_q, _ = self.quantizer.quantize(z_e)
+        x_logits = self.decode(z_q)
+        return x_logits
+
     def forward(self, x: torch.Tensor) -> dict:
         z_e = self.encode(x)
         z_q, indices, codebook_loss, commitment_loss = self.quantizer(z_e)

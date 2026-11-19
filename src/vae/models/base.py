@@ -40,6 +40,10 @@ class BaseAutoencoder(nn.Module, ABC):
         """Decode latents into image logits (B, C, H, W)."""
 
     @abstractmethod
+    def reconstruct(self, x: torch.Tensor) -> torch.Tensor:
+        """Deterministically reconstruct images (B, C, H, W); return image logits (B, C, H, W)."""
+
+    @abstractmethod
     def forward(self, x: torch.Tensor) -> dict:
         """Run encode-decode; return a dict with at least 'x_logits' plus extras needed by 'loss'."""
 

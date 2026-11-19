@@ -21,6 +21,11 @@ class AE(BaseAutoencoder):
         x_logits = self.decoder(h)
         return x_logits
 
+    def reconstruct(self, x: torch.Tensor) -> torch.Tensor:
+        z = self.encode(x)
+        x_logits = self.decode(z)
+        return x_logits
+
     def forward(self, x: torch.Tensor) -> dict:
         z = self.encode(x)
         x_logits = self.decode(z)

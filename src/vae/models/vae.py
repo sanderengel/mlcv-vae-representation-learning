@@ -30,6 +30,11 @@ class VAE(BaseAutoencoder):
         z = mu + std * eps
         return z
 
+    def reconstruct(self, x: torch.Tensor) -> torch.Tensor:
+        mu, _ = self.encode(x)
+        x_logits = self.decode(mu)
+        return x_logits
+
     def forward(self, x: torch.Tensor) -> dict:
         mu, logvar = self.encode(x)
         z = self._reparameterize(mu, logvar)
