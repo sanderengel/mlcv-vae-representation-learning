@@ -8,6 +8,6 @@ BATCH_SIZE = 128
 
 LR = 1e-3
 
-N_EPOCHS = 30
+N_EPOCHS = 50
 
 SEED = 70766
