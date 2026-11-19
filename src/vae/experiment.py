@@ -24,7 +24,7 @@ def run_experiment(
     n_epochs: int = config.N_EPOCHS,
     verbose: bool = True,
     **model_kwargs
-) -> dict:
+) -> tuple[dict, int]:
     """Train one model and save config, checkpoint, and history to runs_dir/run_name."""
     if model_name not in MODELS:
         raise ValueError(f"Unknown model '{model_name}'. Supported models are {list(MODELS)}")
