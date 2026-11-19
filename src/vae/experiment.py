@@ -11,6 +11,15 @@ from vae.models.vqvae import VQVAE
 from vae.train import fit
 
 MODELS = {"ae": AE, "vae": VAE, "vqvae": VQVAE}
+MODEL_DEFAULTS = {
+    "ae": {"latent_dim": config.LATENT_DIM},
+    "vae": {"latent_dim": config.LATENT_DIM},
+    "vqvae": {
+        "num_embeddings": config.NUM_EMBEDDINGS,
+        "embedding_dim": config.EMBEDDING_DIM,
+        "commitment_cost": config.COMMITMENT_COST
+    }
+}
 
 
 def run_experiment(
@@ -50,6 +59,7 @@ def run_experiment(
     model_kwargs = {
         "hidden_channels": config.HIDDEN_CHANNELS,
         "num_res_blocks": config.NUM_RES_BLOCKS,
+        **MODEL_DEFAULTS[model_name],
         **info,
         **model_kwargs
     }
