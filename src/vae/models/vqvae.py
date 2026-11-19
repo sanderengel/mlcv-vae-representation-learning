@@ -11,8 +11,8 @@ class VectorQuantizer(nn.Module):
         self.codebook = nn.Embedding(num_embeddings, embedding_dim)
         self.codebook.weight.data.uniform_(-1 / num_embeddings, 1 / num_embeddings)
 
-    def forward(self, z_e: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Quantise z_e (B, D, H, W); return z_q (B, D, H, W), indices (B, H, W), codebook_loss, commitment_loss."""
+    def quantize(self, z_e: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """Quantise z_e (B, D, H, W); return z_q (B, D, H, W) and indices (B, H, W)."""
         B, D, H, W = z_e.shape
 
         # (B, D, H, W) -> (B, H, W, D) -> (B*H*W, D), i.e., one row per spatial position
@@ -28,6 +28,15 @@ class VectorQuantizer(nn.Module):
         indices = dist.argmin(1) # (B*H*W,)
         z_q = self.codebook(indices).view(B, H, W, D).permute(0, 3, 1, 2) # Back to (B, D, H, W)
         indices = indices.view(B, H, W)
+
+        return z_q, indices
+
+    def forward(self, z_e: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Quantise z_e (B, D, H, W); return straight-through z_q (B, D, H, W), 
+        indices (B, H, W), codebook_loss, commitment_loss.
+        """
+        z_q, indices = self.quantize(z_e)
 
         # VQ losses (sum over elements, mean over batches)
         codebook_loss = mse_loss(z_q, z_e.detach())
