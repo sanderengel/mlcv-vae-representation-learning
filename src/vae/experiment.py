@@ -30,7 +30,7 @@ def run_experiment(
         raise ValueError(f"Unknown model '{model_name}'. Supported models are {list(MODELS)}")
 
     run_dir = Path(runs_dir) / run_name
-    runs_dir.mkdir(parents=True, exist_ok=False) # Raise error if ran before
+    run_dir.mkdir(parents=True, exist_ok=False) # Raise error if ran before
 
     set_seed(seed)
     train_loader, val_loader, _, info = get_dataloaders(dataset, batch_size=batch_size, seed=seed)
@@ -52,11 +52,11 @@ def run_experiment(
         "n_epochs": n_epochs,
         "model_kwargs": model_kwargs
     }
-    with open(run_dir, "config.json", "w") as f:
+    with open(run_dir / "config.json", "w") as f:
         json.dump(run_config, f, indent=2)
 
     model = MODELS[model_name](model_kwargs)
-    return fit(model, train_loader, val_loader, run_dir=runs_dir, lr=lr, n_epochs=n_epochs, verbose=verbose)
+    return fit(model, train_loader, val_loader, run_dir=run_dir, lr=lr, n_epochs=n_epochs, verbose=verbose)
 
 
 def load_run(run_dir: str | Path, device: str = "cpu"):
